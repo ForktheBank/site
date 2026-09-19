@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Protocolo Soberano — O Guia Completo de Autocustódia | Fork The Banks</title>
+<meta name="description" content="O guia passo a passo para tirar seu Bitcoin das mãos de terceiros: autocustódia, proteção de seed phrase, saída segura de exchanges e sucessão patrimonial." />
+<meta name="theme-color" content="#f2f0e9" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f2f0e9'/%3E%3Ccircle cx='50' cy='50' r='42' fill='none' stroke='%2375592b' stroke-width='5'/%3E%3Ctext x='50' y='67' text-anchor='middle' font-family='Georgia,serif' font-size='46' fill='%2375592b'%3EF%3C/text%3E%3C/svg%3E" />
+
+<meta property="og:title" content="Protocolo Soberano — O Guia Completo de Autocustódia" />
+<meta property="og:description" content="Tire seu Bitcoin das mãos de terceiros — antes que a decisão deixe de ser sua." />
+<meta property="og:type" content="product" />
+<!-- og:url corrigido: o arquivo real é protocolo.html (antes apontava para protocolo-soberano.html) -->
+<meta property="og:url" content="https://forkthebanks.org/protocolo.html" />
+<!-- TODO: criar og-image-protocolo.jpg (1200×630) na raiz do site -->
+<meta property="og:image" content="https://forkthebanks.org/og-image-protocolo.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================
+   PROTOCOLO SOBERANO — página de venda no sistema de design
+   do site Fork The Banks (papel/tinta/ouro · Playfair + DM).
+   Arquivo autossuficiente: não depende de styles.css.
+============================================================ */
+
+:root {
+  --ink:#0e0e0d;
+  --paper:#f2f0e9;
+  --stone:#ded9cf;
+  --gold:#bd9b62;          /* ornamental: filetes, bordas, números sobre fundo escuro */
+  --gold-text:#75592b;     /* textual: 5.7:1 sobre papel, 4.6:1 sobre pedra (AA) */
+  --line:rgba(14,14,13,.2);
+  --muted:#6b6860;         /* 4.9:1 sobre papel (AA) */
+  --serif:'Playfair Display', Georgia, serif;
+  --sans:'DM Sans', Arial, sans-serif;
+  --mono:'DM Mono', monospace;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
+a { color:inherit; text-decoration:none; }
+button { font:inherit; cursor:pointer; }
+img,svg { display:block; max-width:100%; }
+section[id] { scroll-margin-top:24px; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior:auto; }
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+a:focus-visible, button:focus-visible { outline:2px solid var(--gold-text); outline-offset:3px; }
+.ink-band a:focus-visible, .ink-band button:focus-visible, .final-cta a:focus-visible { outline-color:var(--gold); }
+
+.skip-link { position:absolute; left:16px; top:-60px; z-index:99; padding:12px 16px; background:var(--ink); color:var(--paper); font:10px var(--mono); letter-spacing:.1em; text-transform:uppercase; transition:top .2s; }
+.skip-link:focus { top:16px; }
+
+/* ---------- header (mesmo padrão de resources.css) ---------- */
+.resource-header { min-height:82px; padding:0 3.3vw; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
+.resource-header .brand { display:flex; align-items:center; gap:8px; font:500 10px var(--mono); letter-spacing:.14em; }
+.resource-header .brand img { width:49px; height:49px; object-fit:contain; }
+.resource-header .desktop-nav { display:flex; align-items:center; gap:30px; margin-left:10vw; font:10px var(--mono); letter-spacing:.1em; }
+.resource-header .desktop-nav > a { transition:opacity .2s; }
+.resource-header .desktop-nav > a:hover { opacity:.55; }
+.resource-cta { border:0; padding:16px 20px; background:var(--ink); color:#fff; font:500 10px var(--mono); letter-spacing:.09em; text-transform:uppercase; transition:background .2s; }
+.resource-cta:hover { background:#2b2a25; }
+.resource-cta span { margin-left:13px; font-size:15px; vertical-align:-1px; }
+
+.nav-dropdown { position:relative; align-self:stretch; display:flex; align-items:center; }
+.nav-trigger { border:0; padding:0; background:transparent; color:inherit; font:inherit; letter-spacing:inherit; cursor:pointer; }
+.nav-trigger span.plus { margin-left:5px; font-size:14px; vertical-align:-1px; }
+.dropdown-panel { position:absolute; top:62px; left:-18px; width:255px; padding:10px 18px; background:var(--paper); color:var(--ink); box-shadow:0 12px 30px rgba(0,0,0,.16); opacity:0; visibility:hidden; transform:translateY(-6px); transition:.2s; z-index:40; }
+.nav-dropdown:hover .dropdown-panel, .nav-dropdown:focus-within .dropdown-panel, .nav-dropdown.is-open .dropdown-panel { opacity:1; visibility:visible; transform:translateY(0); }
+.dropdown-panel a { display:grid; grid-template-columns:24px 1fr auto; gap:8px; align-items:baseline; padding:12px 0; border-bottom:1px solid var(--line); font:10px var(--mono); letter-spacing:.06em; }
+.dropdown-panel a:last-child { border-bottom:0; }
+.dropdown-panel b { font-weight:400; color:var(--gold-text); }
+.dropdown-panel .arrow { font-size:13px; }
+.dropdown-panel a[aria-current="page"] { color:var(--gold-text); }
+
+/* ---------- hero ---------- */
+.page-hero { padding:82px 8.3vw 96px; border-bottom:1px solid var(--line); }
+.breadcrumbs { display:flex; gap:8px; margin-bottom:58px; color:var(--muted); font:9px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+.breadcrumbs a { color:var(--ink); }
+.breadcrumbs a:hover { opacity:.55; }
+.page-hero .eyebrow { display:block; margin-bottom:18px; color:var(--gold-text); font:10px var(--mono); letter-spacing:.12em; text-transform:uppercase; }
+.page-hero h1 { max-width:900px; margin:0; font:500 clamp(48px,7vw,100px)/.92 var(--serif); letter-spacing:-.055em; }
+.page-hero h1 em { font-weight:500; }
+.page-hero .lede { max-width:540px; margin:31px 0 0; font-size:16px; line-height:1.75; }
+.hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:40px; align-items:center; }
+.hero-note { margin:18px 0 0; color:var(--muted); font:10px var(--mono); letter-spacing:.08em; text-transform:uppercase; }
+.page-hero small { display:block; max-width:600px; margin-top:34px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); font-size:11px; line-height:1.6; }
+.hero-layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,360px); gap:7vw; align-items:center; }
+.hero-book { margin:38px 0 0; align-self:center; display:flex; justify-content:center; }
+.hero-book img { width:min(100%,360px); height:auto; filter:drop-shadow(18px 24px 20px rgba(25,20,12,.24)); }
+
+/* ---------- botões ---------- */
+.btn-dark { display:inline-block; border:1px solid var(--ink); padding:16px 20px; background:var(--ink); color:#fff; font:500 10px var(--mono); letter-spacing:.09em; text-transform:uppercase; transition:background .2s; }
+.btn-dark:hover { background:#2b2a25; }
+.btn-dark span, .btn-outline span, .btn-light span { margin-left:13px; font-size:15px; vertical-align:-1px; }
+.btn-outline { display:inline-block; border:1px solid var(--ink); padding:16px 20px; background:transparent; color:var(--ink); font:500 10px var(--mono); letter-spacing:.09em; text-transform:uppercase; transition:.2s; }
+.btn-outline:hover { background:var(--ink); color:var(--paper); }
+.btn-light { display:inline-block; border:1px solid var(--paper); padding:16px 20px; background:var(--paper); color:var(--ink); font:500 10px var(--mono); letter-spacing:.09em; text-transform:uppercase; transition:.2s; }
+.btn-light:hover { background:#fff; }
+.btn-block { display:block; width:100%; text-align:center; }
+
+/* ---------- seções ---------- */
+.content-section { padding:100px 8.3vw; border-bottom:1px solid var(--line); }
+.section-heading { display:grid; grid-template-columns:1fr 1fr; gap:8vw; align-items:end; margin-bottom:50px; }
+.section-heading h2 { margin:0; font:500 clamp(40px,5vw,72px)/.95 var(--serif); letter-spacing:-.055em; }
+.section-heading h2 em { font-weight:500; }
+.section-heading p { max-width:340px; margin:0; font-size:13.5px; line-height:1.75; color:var(--muted); }
+.section-eyebrow { display:block; margin-bottom:18px; color:var(--gold-text); font:10px var(--mono); letter-spacing:.12em; text-transform:uppercase; }
+
+/* ---------- prévia do livro ---------- */
+.book-spread { position:relative; margin:0; aspect-ratio:1.43/1; overflow:hidden; background:var(--ink); }
+.book-spread img { width:100%; height:100%; object-fit:contain; }
+.book-spread figcaption { position:absolute; bottom:14px; left:0; right:0; text-align:center; color:#c8c4b9; font:9px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+.video-cta { margin-top:34px; }
+
+/* ---------- três frentes (padrão journey-step) ---------- */
+.ledger-list { border-top:1px solid var(--line); }
+.ledger-entry { display:grid; grid-template-columns:70px 1fr; gap:24px; padding:34px 0; border-bottom:1px solid var(--line); align-items:start; }
+.ledger-entry > span { color:var(--gold-text); font:10px var(--mono); letter-spacing:.1em; padding-top:8px; }
+.ledger-entry h3 { margin:0 0 12px; font:500 clamp(26px,2.6vw,34px)/1.05 var(--serif); letter-spacing:-.035em; }
+.ledger-entry p { max-width:62ch; margin:0; font-size:14.5px; line-height:1.75; }
+.callout { max-width:62ch; margin-top:18px; padding:16px 20px; border-left:2px solid var(--gold-text); background:var(--stone); font-size:13px; line-height:1.65; }
+.callout strong { color:var(--gold-text); font:500 10px var(--mono); letter-spacing:.08em; text-transform:uppercase; }
+
+/* ---------- faixa escura (padrão wallet-panel) ---------- */
+.ink-band { padding:100px 8.3vw; background:var(--ink); color:var(--paper); border-bottom:1px solid var(--line); }
+.ink-band .kicker { display:block; margin-bottom:30px; color:#d4cec1; font:10px var(--mono); letter-spacing:.12em; text-transform:uppercase; }
+.ink-band h2 { max-width:670px; margin:0; font:500 clamp(34px,4.6vw,63px)/.98 var(--serif); letter-spacing:-.05em; color:var(--paper); }
+.ink-band h2 em { color:var(--gold); }
+.ink-band p { max-width:58ch; margin:22px 0 0; color:#cbc7bd; font-size:15px; line-height:1.75; }
+.ink-band-stats { display:flex; flex-wrap:wrap; gap:38px; margin-top:44px; padding-top:34px; border-top:1px solid #34332e; }
+.ink-band-stats span { display:grid; gap:6px; color:#c8c4b9; font:9px var(--mono); letter-spacing:.08em; text-transform:uppercase; }
+.ink-band-stats b { color:var(--paper); font:500 24px var(--serif); letter-spacing:0; }
+
+/* ---------- o que você recebe ---------- */
+.deliverables { display:grid; grid-template-columns:1fr 1fr; gap:0 60px; border-top:1px solid var(--line); }
+.deliverables li { display:grid; grid-template-columns:26px 1fr; gap:10px; align-items:start; list-style:none; padding:22px 0; border-bottom:1px solid var(--line); font-size:14.5px; line-height:1.65; }
+.deliverables li::before { content:'✓'; color:var(--gold-text); font:500 13px var(--mono); padding-top:2px; }
+.deliverables b { font-weight:600; }
+
+/* ---------- preços ---------- */
+.pricing { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--ink); border-bottom:1px solid var(--ink); }
+.price-col { display:flex; flex-direction:column; padding:40px 30px; border-left:1px solid var(--line); }
+.price-col:first-child { border-left:0; }
+.price-col.featured { background:var(--stone); }
+.plan-tag { min-height:16px; margin-bottom:14px; color:var(--gold-text); font:9px var(--mono); letter-spacing:.12em; text-transform:uppercase; }
+.plan-num { color:var(--muted); font:10px var(--mono); letter-spacing:.1em; }
+.plan-name { margin:10px 0 2px; font:500 31px var(--serif); letter-spacing:-.03em; }
+.plan-price { margin:0 0 26px; font:500 46px var(--serif); letter-spacing:-.02em; }
+.plan-price small { font:12px var(--sans); color:var(--muted); letter-spacing:0; }
+.price-list { list-style:none; margin:0 0 30px; padding:0; font-size:13px; line-height:1.6; }
+.price-list li { position:relative; padding:7px 0 7px 22px; border-bottom:1px solid var(--line); }
+.price-list li:last-child { border-bottom:0; }
+.price-list li::before { content:'✓'; position:absolute; left:0; color:var(--gold-text); font:500 11px var(--mono); }
+.price-col .btn-dark, .price-col .btn-outline { margin-top:auto; }
+.pricing-note { display:flex; flex-wrap:wrap; gap:8px 26px; margin-top:26px; color:var(--muted); font:9px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+.bitcoin-support { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:26px; align-items:center; margin-top:28px; padding:18px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.bitcoin-support p { margin:0; font-size:12px; line-height:1.6; }
+.bitcoin-support p strong { display:block; margin-bottom:4px; font:500 10px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+.bitcoin-support code { max-width:360px; overflow-wrap:anywhere; padding:10px 12px; background:var(--stone); color:var(--ink); font:10px/1.45 var(--mono); }
+
+/* ---------- garantia ---------- */
+.guarantee-grid { display:grid; grid-template-columns:1fr 1fr; gap:8vw; align-items:start; }
+.guarantee-grid p { margin:0; font-size:14.5px; line-height:1.75; }
+.guarantee-grid p + p { margin-top:16px; }
+.guarantee-note { margin-top:20px; color:var(--muted); font-size:11.5px; line-height:1.6; }
+.guarantee-seal { display:flex; align-items:center; gap:20px; padding:30px; background:var(--stone); }
+.guarantee-seal svg { flex-shrink:0; color:var(--gold-text); }
+.guarantee-seal b { display:block; font:500 30px var(--serif); letter-spacing:-.03em; }
+.guarantee-seal span { display:block; margin-top:6px; color:var(--muted); font:9px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+
+/* ---------- FAQ ---------- */
+.faq-list { border-top:1px solid var(--ink); }
+.faq-item { border-bottom:1px solid var(--line); }
+.faq-q { width:100%; min-height:48px; display:flex; justify-content:space-between; align-items:center; gap:20px; padding:22px 0; border:0; background:transparent; color:var(--ink); text-align:left; font:500 16px var(--sans); transition:opacity .2s; }
+.faq-q:hover { opacity:.65; }
+.faq-mark { flex-shrink:0; color:var(--gold-text); font:400 20px var(--mono); }
+.faq-mark::before { content:'+'; }
+.faq-item.open .faq-mark::before { content:'−'; }
+.faq-a { display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s ease; }
+.faq-item.open .faq-a { grid-template-rows:1fr; }
+.faq-a > div { overflow:hidden; }
+.faq-a p { max-width:70ch; margin:0; padding:0 60px 26px 0; color:#3c3a34; font-size:14px; line-height:1.75; }
+
+/* ---------- CTA final ---------- */
+.final-cta { padding:120px 8.3vw; background:var(--ink); color:var(--paper); text-align:center; }
+.final-monogram { display:flex; justify-content:center; align-items:center; gap:18px; margin-bottom:40px; color:var(--paper); font:500 56px var(--serif); }
+.final-monogram span { width:8px; height:8px; background:var(--gold); border-radius:50%; }
+.final-cta .eyebrow { display:block; margin-bottom:20px; color:var(--gold); font:10px var(--mono); letter-spacing:.12em; text-transform:uppercase; }
+.final-cta h2 { max-width:760px; margin:0 auto; font:500 clamp(38px,5vw,64px)/.98 var(--serif); letter-spacing:-.05em; color:var(--paper); }
+.final-cta h2 em { color:var(--gold); }
+.final-cta p { max-width:56ch; margin:26px auto 0; color:#cbc7bd; font-size:14.5px; line-height:1.75; }
+.final-cta .btn-light { margin-top:44px; }
+
+/* ---------- footer (mesmo padrão de resources.css) ---------- */
+.page-footer { padding:28px 3.3vw; display:grid; grid-template-columns:1fr 1fr; gap:24px; font:9px var(--mono); letter-spacing:.09em; text-transform:uppercase; }
+.page-footer nav { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:18px; }
+.page-footer nav a:hover { opacity:.55; }
+.page-footer small { grid-column:1/-1; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); font:400 11px/1.6 var(--sans); letter-spacing:0; text-transform:none; }
+
+/* ---------- mobile ---------- */
+@media (max-width:760px) {
+  .resource-header { min-height:67px; padding:0 20px; }
+  .resource-header .brand img { width:40px; height:40px; }
+  .resource-header .brand span { font-size:9px; }
+  .resource-header .desktop-nav { display:none; }
+  .resource-cta { padding:12px 14px; font-size:9px; }
+  .resource-cta span { margin-left:8px; font-size:13px; }
+  .page-hero { padding:60px 20px 65px; }
+  .breadcrumbs { margin-bottom:39px; }
+  .page-hero h1 { font-size:clamp(42px,11vw,53px); }
+  .page-hero .lede { font-size:14px; }
+  .hero-layout { grid-template-columns:1fr; gap:24px; }
+  .hero-book { margin:4px 0 0; justify-content:flex-start; }
+  .hero-book img { width:min(82%,310px); }
+  .content-section { padding:67px 20px; }
+  .section-heading, .guarantee-grid { grid-template-columns:1fr; gap:23px; margin-bottom:34px; }
+  .section-heading h2 { font-size:42px; }
+  .ink-band { padding:67px 20px; }
+  .ink-band-stats { gap:22px; }
+  .ledger-entry { grid-template-columns:40px 1fr; gap:14px; padding:28px 0; }
+  .deliverables { grid-template-columns:1fr; }
+  .pricing { grid-template-columns:1fr; }
+  .price-col { border-left:0; border-top:1px solid var(--line); padding:34px 22px; }
+  .price-col:first-child { border-top:0; }
+  .bitcoin-support { grid-template-columns:1fr; gap:14px; }
+  .faq-a p { padding-right:0; }
+  .final-cta { padding:80px 20px; }
+  .page-footer { padding:25px 20px; grid-template-columns:1fr; }
+  .page-footer nav { justify-content:flex-start; gap:12px 18px; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="resource-header">
+  <a class="brand" href="index.html"><svg class="brand-seal" viewBox="0 0 100 100" width="46" height="46" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="50" cy="50" r="37" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/><text x="50" y="64" text-anchor="middle" font-family="Georgia,serif" font-size="40" fill="currentColor">F</text></svg><span>FORK THE BANKS</span></a>
+  <nav class="desktop-nav" aria-label="Navegação principal">
+    <a href="protocolo.html" aria-current="page">Protocolo</a>
+    <div class="nav-dropdown">
+      <button class="nav-trigger" type="button" aria-haspopup="true" aria-expanded="false">Recursos <span class="plus">+</span></button>
+      <div class="dropdown-panel">
+        <a href="comecando.html"><b>01</b> Começando <span class="arrow">↗</span></a>
+        <a href="encontre-sua-wallet.html"><b>02</b> Encontre sua Wallet <span class="arrow">↗</span></a>
+        <a href="para-voce.html"><b>03</b> Para Você <span class="arrow">↗</span></a>
+      </div>
+    </div>
+    <a href="index.html#sobre">Sobre</a>
+  </nav>
+  <a class="resource-cta" href="#precos">Quero o Protocolo <span>↗</span></a>
+</header>
+
+<main id="conteudo">
+
+  <!-- ================= HERO ================= -->
+  <section class="page-hero">
+    <nav class="breadcrumbs" aria-label="Trilha de navegação"><a href="index.html">Início</a><span>/</span><span>Protocolo Soberano</span></nav>
+    <div class="hero-layout">
+      <div class="hero-copy">
+        <span class="eyebrow">Produto educacional — acesso vitalício</span>
+        <h1>O guia que tira seu Bitcoin das mãos de terceiros — <em>antes que a decisão deixe de ser sua.</em></h1>
+        <p class="lede">Passo a passo completo de autocustódia. Sem jargão de exchange, sem promessa de retorno. Feito para quem leva isso a sério.</p>
+        <div class="hero-actions">
+          <a class="btn-dark" href="#precos">Quero o Protocolo <span>↗</span></a>
+          <a class="btn-outline" href="#o-protocolo">Ver o conteúdo <span>↓</span></a>
+        </div>
+        <p class="hero-note">Acesso imediato após a confirmação do pagamento · Garantia de 7 dias</p>
+        <small>Conteúdo educacional. Não constitui recomendação de investimento, oferta de ativos ou aconselhamento financeiro. Nunca informe sua seed phrase, senhas ou chaves privadas em nenhum formulário ou página deste site.</small>
+      </div>
+      <figure class="hero-book">
+        <img src="capa-do-livro.png" alt="Capa do livro Seja o Seu Próprio Banco — Segurança Máxima" />
+      </figure>
+    </div>
+  </section>
+
+  <!-- ================= PRÉVIA DO LIVRO ================= -->
+  <section class="content-section" aria-labelledby="video-title">
+    <div class="section-heading">
+      <div><span class="section-eyebrow">Prévia</span><h2 id="video-title">Veja o protocolo <em>por dentro.</em></h2></div>
+      <p>Uma visão geral das páginas, checklists e frameworks que fazem parte do material.</p>
+    </div>
+    <figure class="book-spread">
+      <img src="livro-visto-de-cima.png" alt="Páginas internas abertas do Protocolo Soberano" />
+      <figcaption>Páginas internas do Protocolo Soberano</figcaption>
+    </figure>
+    <div class="video-cta"><a class="btn-dark" href="#precos">Quero o Protocolo <span>↗</span></a></div>
+  </section>
+
+  <!-- ================= 01 · POR QUE AGORA ================= -->
+  <section class="content-section" id="porque-agora" aria-labelledby="porque-title">
+    <div class="section-heading">
+      <div><span class="section-eyebrow">01 — Por que agora</span><h2 id="porque-title">Três frentes avançam <em>ao mesmo tempo.</em></h2></div>
+      <p>Nenhuma delas espera você estar pronto. Entender o cenário é o primeiro passo para não decidir sob pressão.</p>
+    </div>
+    <div class="ledger-list">
+      <article class="ledger-entry">
+        <span>01</span>
+        <div>
+          <h3>A janela está fechando</h3>
+          <p>A Resolução BCB nº 584/2026, publicada em agosto de 2026, cria uma retenção cautelar de até 24 horas para transferências de ativos virtuais acima de US$ 10 mil com destino a carteiras autocustodiadas ou a prestadoras no exterior. A regra entra em vigor em 1º de janeiro de 2027. Ela não proíbe a autocustódia — mas cria uma camada de análise sobre quem ainda não sabe operar fora do trilho supervisionado.</p>
+          <div class="callout"><strong>Resolução BCB nº 584/2026</strong> — retenção cautelar de até 24h para operações acima de US$ 10 mil · vigência: 1º de janeiro de 2027.</div>
+        </div>
+      </article>
+      <article class="ledger-entry">
+        <span>02</span>
+        <div>
+          <h3>Confiança não é proteção</h3>
+          <p>O mercado cripto já viu, mais de uma vez, corretoras solventes num dia e inacessíveis no seguinte. Autocustódia não é sobre desconfiar de uma empresa específica — é sobre parar de depender de qualquer uma delas para provar que o que é seu continua sendo seu.</p>
+        </div>
+      </article>
+      <article class="ledger-entry">
+        <span>03</span>
+        <div>
+          <h3>Sua moeda tem prazo de validade</h3>
+          <p>Enquanto capital fica parado em conta corrente, ele perde poder de compra mês após mês — de forma silenciosa e cumulativa. Isso não é opinião sobre o Bitcoin; é o ponto de partida para qualquer estratégia séria de proteção patrimonial.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= FAIXA ESCURA · O PRODUTO ================= -->
+  <section class="ink-band" id="o-protocolo" aria-labelledby="produto-title">
+    <span class="kicker">O produto</span>
+    <h2 id="produto-title">O Protocolo <em>Soberano.</em></h2>
+    <p>A resposta prática às três frentes acima: um guia direto, sem enrolação, para você configurar sua própria autocustódia do zero — mesmo que hoje todo o seu capital ainda esteja numa exchange.</p>
+    <div class="ink-band-stats">
+      <span><b>PDF</b> Guia completo</span>
+      <span><b>4</b> frameworks práticos</span>
+      <span><b>∞</b> Atualizações vitalícias</span>
+      <span><b>7</b> dias de garantia</span>
+    </div>
+  </section>
+
+  <!-- ================= 02 · O QUE VOCÊ RECEBE ================= -->
+  <section class="content-section" aria-labelledby="recebe-title">
+    <div class="section-heading">
+      <div><span class="section-eyebrow">02 — O que você recebe</span><h2 id="recebe-title">Um sistema completo, <em>sem etapa pulada.</em></h2></div>
+      <p>Cada item foi desenhado para funcionar em conjunto: da primeira transferência ao plano de sucessão.</p>
+    </div>
+    <ul class="deliverables">
+      <li><span><b>Guia passo a passo:</b> da exchange à carteira fria, sem pular etapa</span></li>
+      <li><span><b>Protocolo de proteção de seed phrase:</b> backup redundante, sem ponto único de falha</span></li>
+      <li><span><b>Checklist de saída segura,</b> aplicável a qualquer corretora</span></li>
+      <li><span><b>Framework de sucessão:</b> o que acontece com seu Bitcoin quando você não estiver mais aqui</span></li>
+      <li><span><b>Comparativo objetivo de hardware wallets</b> — sem indicação paga</span></li>
+      <li><span><b>Acesso vitalício</b> a atualizações e à comunidade privada no Telegram</span></li>
+    </ul>
+  </section>
+
+  <!-- ================= 03 · PREÇOS ================= -->
+  <section class="content-section" id="precos" aria-labelledby="precos-title">
+    <div class="section-heading">
+      <div><span class="section-eyebrow">03 — Apoie o projeto</span><h2 id="precos-title">Escolha como você <em>quer apoiar.</em></h2></div>
+      <p>As três opções dão acesso ao mesmo conteúdo completo do Protocolo Soberano. A diferença está em quanto você escolhe contribuir com o projeto.</p>
+    </div>
+    <div class="pricing">
+      <div class="price-col">
+        <span class="plan-tag" aria-hidden="true"></span>
+        <span class="plan-num">PLANO 01</span>
+        <h3 class="plan-name">Acesso</h3>
+        <p class="plan-price">R$29 <small>· pagamento único</small></p>
+        <ul class="price-list">
+          <li>Guia completo de autocustódia (PDF)</li>
+          <li>Checklist de saída de exchanges</li>
+          <li>Protocolo de seed phrase</li>
+          <li>Framework de sucessão</li>
+          <li>Comparativo de hardware wallets</li>
+          <li>Comunidade no Telegram</li>
+        </ul>
+        <a href="https://pay.hotmart.com/M98085993F?off=ttxg42mt&amp;checkoutMode=10" class="btn-outline btn-block" target="_blank" rel="noreferrer">Quero o Protocolo <span>↗</span></a>
+      </div>
+      <div class="price-col featured">
+        <span class="plan-tag">Mais escolhido</span>
+        <span class="plan-num">PLANO 02</span>
+        <h3 class="plan-name">Acesso + Apoio</h3>
+        <p class="plan-price">R$47 <small>· pagamento único</small></p>
+        <ul class="price-list">
+          <li>Guia completo de autocustódia (PDF)</li>
+          <li>Checklist de saída de exchanges</li>
+          <li>Protocolo de seed phrase</li>
+          <li>Framework de sucessão</li>
+          <li>Comparativo de hardware wallets</li>
+          <li>Comunidade no Telegram</li>
+          <li>Seu apoio mantém o relatório semanal gratuito</li>
+        </ul>
+        <a href="https://pay.hotmart.com/M98085993F?off=3cxjleai&amp;checkoutMode=10" class="btn-dark btn-block" target="_blank" rel="noreferrer">Quero o Protocolo <span>↗</span></a>
+      </div>
+      <div class="price-col">
+        <span class="plan-tag" aria-hidden="true"></span>
+        <span class="plan-num">PLANO 03</span>
+        <h3 class="plan-name">Fundador</h3>
+        <p class="plan-price">R$97 <small>· pagamento único</small></p>
+        <ul class="price-list">
+          <li>Guia completo de autocustódia (PDF)</li>
+          <li>Checklist de saída de exchanges</li>
+          <li>Protocolo de seed phrase</li>
+          <li>Framework de sucessão</li>
+          <li>Comparativo de hardware wallets</li>
+          <li>Comunidade no Telegram</li>
+          <li>Reconhecimento como apoiador fundador do projeto</li>
+        </ul>
+        <a href="https://pay.hotmart.com/M98085993F?off=r9fa4jrr&amp;checkoutMode=10" class="btn-outline btn-block" target="_blank" rel="noreferrer">Quero o Protocolo <span>↗</span></a>
+      </div>
+    </div>
+    <div class="pricing-note">
+      <span>Pagamento seguro</span><span>Acesso vitalício</span><span>Garantia de 7 dias</span><span>Entrega imediata por e-mail</span>
+    </div>
+  </section>
+
+  <!-- ================= 04 · GARANTIA ================= -->
+  <section class="content-section" id="garantia" aria-labelledby="garantia-title">
+    <div class="section-heading">
+      <div><span class="section-eyebrow">04 — Garantia</span><h2 id="garantia-title">Risco zero <em>por 7 dias.</em></h2></div>
+    </div>
+    <div class="guarantee-grid">
+      <div>
+        <p>Se nos primeiros 7 dias você sentir que o Protocolo Soberano não é para você, mande uma mensagem e devolvemos seu valor. Sem formulário de saída, sem pergunta.</p>
+        <p class="guarantee-note">Prazo alinhado ao direito de arrependimento previsto para compras feitas fora de estabelecimento físico.</p>
+      </div>
+      <div class="guarantee-seal" aria-hidden="true">
+        <svg viewBox="0 0 100 100" width="72" height="72">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="50" cy="50" r="37" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="50" y="64" text-anchor="middle" font-family="Georgia, serif" font-size="40" fill="currentColor">7</text>
+        </svg>
+        <div><b>7 dias</b><span>Devolução integral · sem perguntas</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 05 · FAQ ================= -->
+  <section class="content-section" id="faq" aria-labelledby="faq-title">
+    <div class="section-heading">
+      <div><span class="section-eyebrow">05 — Dúvidas</span><h2 id="faq-title">Perguntas <em>frequentes.</em></h2></div>
+      <p>Se a sua pergunta não estiver aqui, fale com a gente pelo Telegram ou e-mail no rodapé.</p>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a1">Preciso já ter Bitcoin para começar?<span class="faq-mark" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-a1" role="region"><div><p>Não. O protocolo começa do zero — inclusive de como sair de uma exchange com segurança, caso seja essa a sua situação hoje.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a2">Funciona para qualquer corretora?<span class="faq-mark" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-a2" role="region"><div><p>Sim. O protocolo é sobre o destino — sua própria carteira — e não depende de qual corretora ou exchange você usa hoje.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a3">Já uso uma hardware wallet. Ainda faz sentido?<span class="faq-mark" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-a3" role="region"><div><p>Sim. A maioria dos problemas de autocustódia não está na compra do dispositivo — está no backup da seed phrase e no plano de sucessão, que o protocolo cobre em detalhe.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a4">Como recebo o material?<span class="faq-mark" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-a4" role="region"><div><p>Acesso liberado por e-mail imediatamente após a confirmação do pagamento, junto com o convite para a comunidade no Telegram.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a5">Tem garantia?<span class="faq-mark" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-a5" role="region"><div><p>Sim, 7 dias. Veja a seção de garantia acima.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA FINAL ================= -->
+  <section class="final-cta" aria-labelledby="final-title">
+    <div class="final-monogram" aria-hidden="true">F<span></span>₿</div>
+    <span class="eyebrow">A decisão é sua</span>
+    <h2 id="final-title">A janela para se preparar <em>tem prazo.</em></h2>
+    <p>A partir de janeiro de 2027, transferências relevantes para autocustódia entram numa nova camada de análise. Quem já sabe operar o próprio protocolo chega nesse momento sem fricção — quem não sabe, aprende sob pressão.</p>
+    <a class="btn-light" href="#precos">Quero o Protocolo Soberano <span>↗</span></a>
+  </section>
+
+</main>
+
+<footer class="page-footer">
+  <span>© <span id="year"></span> Fork The Banks</span>
+  <nav aria-label="Links do rodapé">
+    <a href="index.html">Início</a>
+    <a href="https://www.instagram.com/forkthebanks" target="_blank" rel="noreferrer">Instagram ↗</a>
+    <a href="https://t.me/ForktheBanks" target="_blank" rel="noreferrer">Telegram ↗</a>
+    <!-- TODO: criar privacidade.html e termos.html antes de publicar a venda -->
+    <a href="privacidade.html">Privacidade</a>
+    <a href="termos.html">Termos</a>
+  </nav>
+  <small>O Protocolo Soberano é um material educacional sobre autocustódia de ativos digitais e não constitui recomendação de investimento, consultoria financeira ou aconselhamento jurídico individualizado. Bitcoin e demais ativos digitais envolvem risco, incluindo perda total do capital. [RAZÃO SOCIAL] · CNPJ [00.000.000/0000-00]</small>
+</footer>
+
+<script>
+(function () {
+  var year = document.querySelector('#year');
+  if (year) year.textContent = new Date().getFullYear();
+
+  /* Acordeão do FAQ — abre um por vez, com aria-expanded e marcador +/− via CSS */
+  document.querySelectorAll('.faq-q').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.faq-item');
+      var wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function (openItem) {
+        if (openItem !== item) {
+          openItem.classList.remove('open');
+          var q = openItem.querySelector('.faq-q');
+          if (q) q.setAttribute('aria-expanded', 'false');
+        }
+      });
+      item.classList.toggle('open', !wasOpen);
+      btn.setAttribute('aria-expanded', String(!wasOpen));
+    });
+  });
+
+  /* Dropdown "Recursos" — além do hover, abre por clique/toque e anuncia estado */
+  document.querySelectorAll('.nav-dropdown').forEach(function (dropdown) {
+    var trigger = dropdown.querySelector('.nav-trigger');
+    if (!trigger) return;
+    trigger.addEventListener('click', function () {
+      var open = dropdown.classList.toggle('is-open');
+      trigger.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', function (event) {
+      if (!dropdown.contains(event.target)) {
+        dropdown.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && dropdown.classList.contains('is-open')) {
+        dropdown.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.focus();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
