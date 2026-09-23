@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Gráficos e dados históricos do Bitcoin: preço, retorno por período, dias acima de cada nível e tempo para dobrar." /><title>Charts — Fork The Banks</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" /><link rel="stylesheet" href="resources.css" /><link rel="stylesheet" href="site-nav.css" />
+<style>
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line); }
+.stats-grid div { padding:24px 20px 0 0; }
+.stats-grid b { display:block; font:500 clamp(28px,3.2vw,44px)/1 var(--serif); letter-spacing:-.04em; }
+.stats-grid span { display:block; margin-top:10px; color:var(--muted); font:9px/1.5 var(--mono); letter-spacing:.09em; text-transform:uppercase; }
+.pos { color:#2f7d4f; } .neg { color:#b5432f; }
+.chart-panel { background:var(--ink); color:var(--paper); padding:22px 22px 14px; }
+.chart-controls { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
+.seg { display:flex; gap:4px; }
+.seg button { border:1px solid #53514b; background:transparent; color:#c8c4b9; padding:8px 12px; font:9px var(--mono); letter-spacing:.1em; text-transform:uppercase; }
+.seg button:hover { border-color:var(--gold); }
+.seg button.is-active { border-color:var(--gold); background:#252522; color:var(--paper); }
+.chart-box { position:relative; min-height:300px; }
+.chart-box svg { display:block; touch-action:pan-y; }
+.chart-msg { padding:120px 20px; text-align:center; color:#c8c4b9; font-size:13px; line-height:1.6; }
+.tip { position:absolute; pointer-events:none; transform:translate(-50%,-125%); padding:8px 10px; background:var(--paper); color:var(--ink); border:1px solid var(--gold); font:10px/1.5 var(--mono); white-space:nowrap; }
+.chart-src { margin:14px 0 0; padding-top:12px; border-top:1px solid #4f4e49; color:#c8c4b9; font:9px/1.6 var(--mono); letter-spacing:.05em; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:5vw; }
+.two-col h3 { margin:0 0 10px; font:500 34px/1 var(--serif); letter-spacing:-.045em; }
+.two-col p.note { max-width:420px; margin:0 0 24px; font-size:12px; line-height:1.7; }
+.table-scroll { overflow-x:auto; }
+.data-table { width:100%; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums; }
+.data-table th { padding:12px 12px 12px 0; border-bottom:1px solid var(--ink); text-align:left; font:9px var(--mono); letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:400; }
+.data-table td { padding:13px 12px 13px 0; border-bottom:1px solid var(--line); }
+.data-table tr.now td { background:#e9e3d3; }
+.table-msg { color:var(--muted); font-size:12px; }
+@media (max-width:760px) {
+  .stats-grid { grid-template-columns:1fr 1fr; }
+  .stats-grid div { padding:18px 12px 18px 0; border-bottom:1px solid var(--line); }
+  .chart-panel { padding:16px 12px 10px; }
+  .two-col { grid-template-columns:1fr; gap:56px; }
+  .chart-box { min-height:240px; }
+}
+</style>
+</head>
+<body><header class="resource-header"><a class="brand" href="index.html"><img src="logo-dark.png" alt="" /><span>FORK THE BANKS</span></a><nav class="desktop-nav" aria-label="Navegação principal"><a href="protocolo.html">Protocolo</a><div class="nav-dropdown"><button class="nav-trigger" type="button">Recursos <span>+</span></button><div class="dropdown-panel"><a href="comecando.html"><b>01</b> Começando <span>↗</span></a><a href="encontre-sua-wallet.html"><b>02</b> Encontre sua Wallet <span>↗</span></a><a href="para-voce.html"><b>03</b> Para Você <span>↗</span></a><a href="charts.html"><b>04</b> Charts <span>↗</span></a></div></div><a href="index.html#sobre">Sobre</a></nav><a class="resource-cta" href="protocolo.html">Ver o Protocolo <span>↗</span></a></header>
+
+<main>
+<section class="page-hero">
+  <nav class="breadcrumbs" aria-label="Trilha de navegação"><a href="index.html">Início</a><span>/</span><span>Recursos</span><span>/</span><span>Charts</span></nav>
+  <span class="eyebrow">04 — CHARTS</span>
+  <h1>O Bitcoin em<br><em>perspectiva.</em></h1>
+  <p>Preço, retorno por período e comportamento histórico do Bitcoin em gráficos e tabelas atualizados a cada visita, para estudar o ativo com dados e não com ruído.</p>
+  <small>Conteúdo educacional. Desempenho passado não garante resultados futuros. Nada aqui é recomendação de investimento, indicação de compra ou aconselhamento financeiro.</small>
+</section>
+
+<section class="content-section">
+  <div class="stats-grid" id="stats">
+    <div><b id="s-price">—</b><span>Preço atual (BTC/USD)</span></div>
+    <div><b id="s-chg">—</b><span>Variação vs. fechamento anterior</span></div>
+    <div><b id="s-ath">—</b><span id="s-ath-l">Máxima de fechamento</span></div>
+    <div><b id="s-dd">—</b><span>Distância da máxima</span></div>
+  </div>
+</section>
+
+<section class="content-section">
+  <div class="section-heading"><div><span class="section-eyebrow">PREÇO</span><h2>Toda a história,<br><em>em um gráfico.</em></h2></div><p>Fechamento diário do BTC em dólar. Na escala logarítmica, variações percentuais iguais ocupam a mesma altura, o que facilita comparar ciclos de tamanhos diferentes.</p></div>
+  <div class="chart-panel" id="c-price">
+    <div class="chart-controls">
+      <div class="seg"><button type="button" data-range="1a">1A</button><button type="button" data-range="2a">2A</button><button type="button" data-range="5a">5A</button><button type="button" data-range="all" class="is-active">Tudo</button></div>
+      <div class="seg"><button type="button" data-scale="lin" class="is-active">Linear</button><button type="button" data-scale="log">Log</button></div>
+    </div>
+    <div class="chart-box"><p class="chart-msg">Carregando dados…</p></div>
+    <p class="chart-src">Fonte: Binance (par BTC/USDT, fechamento diário em UTC). O histórico disponível começa em ago/2017.</p>
+  </div>
+</section>
+
+<section class="content-section">
+  <div class="two-col">
+    <div>
+      <h3>Retorno por período</h3>
+      <p class="note">Preço do BTC na mesma data em anos anteriores e quanto isso representa até hoje, no total e ao ano (CAGR).</p>
+      <div class="table-scroll"><table class="data-table"><thead><tr><th>Há</th><th>Preço na data</th><th>Retorno total</th><th>CAGR</th></tr></thead><tbody id="t-roi"><tr><td colspan="4" class="table-msg">Carregando…</td></tr></tbody></table></div>
+    </div>
+    <div>
+      <h3>Dias acima de cada nível</h3>
+      <p class="note">Em quantos fechamentos diários o BTC ficou acima de cada preço, dentro do histórico disponível (desde ago/2017).</p>
+      <div class="table-scroll"><table class="data-table"><thead><tr><th>Preço</th><th>Dias acima</th><th>% do histórico</th></tr></thead><tbody id="t-days"><tr><td colspan="3" class="table-msg">Carregando…</td></tr></tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section class="content-section">
+  <div class="section-heading"><div><span class="section-eyebrow">VELOCIDADE</span><h2>Tempo para<br><em>dobrar.</em></h2></div><p>Para cada dia, quantos dias se passaram desde a última vez em que o preço esteve na metade do valor daquele dia. É uma leitura do passado, não uma previsão.</p></div>
+  <div class="chart-panel" id="c-dbl">
+    <div class="chart-controls">
+      <div class="seg"><button type="button" data-range="1a">1A</button><button type="button" data-range="2a">2A</button><button type="button" data-range="5a">5A</button><button type="button" data-range="all" class="is-active">Tudo</button></div>
+    </div>
+    <div class="chart-box"><p class="chart-msg">Carregando dados…</p></div>
+    <p class="chart-src">Calculado a partir dos fechamentos diários da Binance (BTC/USDT).</p>
+  </div>
+</section>
+</main>
+
+<footer class="page-footer"><span>© <span id="year"></span> Fork The Banks</span><nav><a href="comecando.html">Começando ↗</a><a href="para-voce.html">Glossário ↗</a></nav><small>Conteúdo educacional. Ativos digitais são voláteis e envolvem risco, incluindo perda total do capital. Os dados são carregados no seu navegador a partir de uma API pública da Binance; podem sofrer atrasos ou indisponibilidade.</small></footer>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const DAY = 864e5, MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const HOSTS = ['https://api.binance.com', 'https://data-api.binance.vision'];
+  const usd = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  const pct = (v, d = 0) => (v >= 0 ? '+' : '') + (v * 100).toLocaleString('pt-BR', { maximumFractionDigits: d }) + '%';
+  const cls = (v) => (v >= 0 ? 'pos' : 'neg');
+  const fdate = (t) => new Date(t).toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' });
+  const nice = (x) => { const p = 10 ** Math.floor(Math.log10(x)), m = x / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p; };
+  let data = null, dbl = null;
+
+  async function load() {
+    for (const h of HOSTS) {
+      try {
+        let start = Date.UTC(2017, 7, 17), out = [];
+        for (;;) {
+          const r = await fetch(`${h}/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=1000&startTime=${start}`);
+          if (!r.ok) throw new Error('http');
+          const k = await r.json();
+          out.push(...k.map((x) => ({ t: x[0], v: +x[4] })));
+          if (k.length < 1000) break;
+          start = k[k.length - 1][0] + DAY;
+        }
+        if (out.length > 100) return out;
+      } catch (e) { /* tenta o próximo host */ }
+    }
+    throw new Error('sem dados');
+  }
+
+  function doubling(d) {
+    const out = [];
+    for (let i = 0; i < d.length; i++) {
+      const half = d[i].v / 2;
+      for (let j = i - 1; j >= 0; j--) if (d[j].v <= half) { out.push({ t: d[i].t, v: i - j }); break; }
+    }
+    return out;
+  }
+
+  function chart(box, series, o) {
+    const W = Math.max(box.clientWidth, 280), H = W < 600 ? 300 : 420, L = W < 600 ? 44 : 62, R = 12, T = 12, B = 28;
+    const t0 = series[0].t, t1 = series[series.length - 1].t, n = series.length;
+    const f = o.log ? Math.log10 : (x) => x;
+    const vals = series.map((p) => f(p.v));
+    let lo = Math.min(...vals), hi = Math.max(...vals);
+    if (!o.log) lo = 0;
+    const pad = (hi - lo) * 0.05 || 1;
+    hi += pad; if (o.log) lo -= pad;
+    const X = (t) => L + ((t - t0) / (t1 - t0 || 1)) * (W - L - R);
+    const Y = (v) => T + (1 - (f(v) - lo) / (hi - lo)) * (H - T - B);
+    let yt = [];
+    if (o.log) {
+      for (let k = Math.floor(lo) - 1; k <= Math.ceil(hi); k++) for (const m of [1, 2, 5]) { const v = m * 10 ** k, g = Math.log10(v); if (g > lo && g < hi) yt.push(v); }
+      if (yt.length > 7) yt = yt.filter((v) => Math.round(v / 10 ** Math.floor(Math.log10(v))) === 1);
+    } else { const s = nice(hi / 5); for (let v = 0; v < hi; v += s) yt.push(v); }
+    const months = (t1 - t0) / (30.44 * DAY), step = months > 96 ? 24 : months > 40 ? 12 : months > 16 ? 6 : months > 7 ? 3 : 1;
+    const d0 = new Date(t0), xt = [];
+    for (let k = 0; ; k++) {
+      const d = new Date(Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + 1 + k, 1));
+      if (d.getTime() > t1) break;
+      if ((d.getUTCFullYear() * 12 + d.getUTCMonth()) % step === 0) xt.push({ t: d.getTime(), label: step >= 12 ? d.getUTCFullYear() : `${MES[d.getUTCMonth()]}/${String(d.getUTCFullYear()).slice(2)}` });
+    }
+    const path = series.map((p, i) => (i ? 'L' : 'M') + X(p.t).toFixed(1) + ' ' + Y(p.v).toFixed(1)).join('');
+    const ff = 'font-family="DM Mono, monospace" font-size="10" fill="#c8c4b9"';
+    const gid = 'g' + Math.random().toString(36).slice(2, 7);
+    box.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label}"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bd9b62" stop-opacity=".35"/><stop offset="1" stop-color="#bd9b62" stop-opacity="0"/></linearGradient></defs>`
+      + yt.map((v) => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="rgba(242,240,233,.12)"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end" ${ff}>${o.tick(v)}</text>`).join('')
+      + xt.map((x) => `<text x="${X(x.t)}" y="${H - 8}" text-anchor="middle" ${ff}>${x.label}</text>`).join('')
+      + `<path d="${path}L${X(t1)} ${H - B}L${X(t0)} ${H - B}Z" fill="url(#${gid})"/><path d="${path}" fill="none" stroke="#bd9b62" stroke-width="1.6" stroke-linejoin="round"/>`
+      + `<g class="hv" style="display:none"><line y1="${T}" y2="${H - B}" stroke="#c8c4b9" stroke-dasharray="3 3"/><circle r="4" fill="#bd9b62" stroke="#0e0e0d" stroke-width="2"/></g><rect class="hit" x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent"/></svg><div class="tip" hidden></div>`;
+    const svg = box.querySelector('svg'), hv = svg.querySelector('.hv'), tip = box.querySelector('.tip');
+    const show = (e) => {
+      const rect = svg.getBoundingClientRect(), mx = ((e.clientX - rect.left) / rect.width) * W;
+      const i = Math.max(0, Math.min(n - 1, Math.round(((mx - L) / (W - L - R)) * (n - 1)))), p = series[i], x = X(p.t), y = Y(p.v);
+      hv.style.display = ''; hv.querySelector('line').setAttribute('x1', x); hv.querySelector('line').setAttribute('x2', x);
+      hv.querySelector('circle').setAttribute('cx', x); hv.querySelector('circle').setAttribute('cy', y);
+      tip.hidden = false; tip.innerHTML = `${fdate(p.t)}<br><b>${o.fmt(p.v)}</b>`;
+      tip.style.left = Math.max(60, Math.min(W - 60, x)) + 'px'; tip.style.top = y + 'px';
+    };
+    const hide = () => { hv.style.display = 'none'; tip.hidden = true; };
+    svg.addEventListener('pointermove', show); svg.addEventListener('pointerdown', show); svg.addEventListener('pointerleave', hide);
+  }
+
+  function card(id, cfg) {
+    const root = $('#' + id), box = root.querySelector('.chart-box'), st = { range: 'all', log: false };
+    const RANGES = { '1a': 365, '2a': 730, '5a': 1825, all: Infinity };
+    const draw = () => {
+      const all = cfg.get(); if (!all || !all.length) return;
+      const k = RANGES[st.range], s = k === Infinity ? all : all.slice(-k);
+      if (s.length < 2) return;
+      chart(box, s, { log: st.log, fmt: cfg.fmt, tick: cfg.tick, label: cfg.label });
+    };
+    const bind = (attr, fn) => root.querySelectorAll(`[${attr}]`).forEach((b) => b.addEventListener('click', () => {
+      fn(b.getAttribute(attr));
+      root.querySelectorAll(`[${attr}]`).forEach((x) => x.classList.toggle('is-active', x === b));
+      draw();
+    }));
+    bind('data-range', (v) => { st.range = v; });
+    bind('data-scale', (v) => { st.log = v === 'log'; });
+    return { draw, box };
+  }
+
+  function fillStats() {
+    const n = data.length, last = data[n - 1], prev = data[n - 2];
+    const ath = data.reduce((a, p) => (p.v > a.v ? p : a), data[0]);
+    const chg = last.v / prev.v - 1, dd = last.v / ath.v - 1;
+    $('#s-price').textContent = usd(last.v);
+    $('#s-chg').innerHTML = `<span class="${cls(chg)}">${pct(chg, 1)}</span>`;
+    $('#s-ath').textContent = usd(ath.v);
+    $('#s-ath-l').textContent = `Máxima de fechamento · ${fdate(ath.t)}`;
+    $('#s-dd').innerHTML = `<span class="${cls(dd)}">${pct(dd, 1)}</span>`;
+  }
+
+  function fillTables() {
+    const n = data.length, last = data[n - 1], t0 = data[0].t;
+    let rows = '';
+    for (let y = 1; y <= 12; y++) {
+      const d = new Date(last.t); d.setUTCFullYear(d.getUTCFullYear() - y);
+      if (d.getTime() < t0) break;
+      const p = data[Math.min(n - 1, Math.round((d.getTime() - t0) / DAY))], r = last.v / p.v - 1, c = (last.v / p.v) ** (1 / y) - 1;
+      rows += `<tr><td>${y} ${y === 1 ? 'ano' : 'anos'}</td><td>${usd(p.v)}</td><td class="${cls(r)}">${pct(r)}</td><td class="${cls(c)}">${pct(c)}</td></tr>`;
+    }
+    $('#t-roi').innerHTML = rows;
+    const levels = [20000, 40000, 60000, 80000, 100000, 120000];
+    $('#t-days').innerHTML = levels.map((lv) => {
+      const c = data.filter((p) => p.v > lv).length;
+      return `<tr><td>${usd(lv)}</td><td>${c.toLocaleString('pt-BR')}</td><td>${(c / n * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</td></tr>`;
+    }).join('');
+  }
+
+  const cards = [
+    card('c-price', { get: () => data, fmt: usd, tick: (v) => (v >= 1000 ? (v / 1000).toLocaleString('pt-BR') + ' mil' : v.toLocaleString('pt-BR')), label: 'Gráfico do preço do Bitcoin em dólar' }),
+    card('c-dbl', { get: () => dbl, fmt: (v) => v.toLocaleString('pt-BR') + ' dias', tick: (v) => v.toLocaleString('pt-BR') + 'd', label: 'Gráfico do tempo para o preço do Bitcoin dobrar' })
+  ];
+
+  load().then((d) => {
+    data = d; dbl = doubling(d);
+    fillStats(); fillTables(); cards.forEach((c) => c.draw());
+  }).catch(() => {
+    const msg = '<p class="chart-msg">Não foi possível carregar os dados agora. Atualize a página em alguns instantes.</p>';
+    cards.forEach((c) => { c.box.innerHTML = msg; });
+    ['#t-roi', '#t-days'].forEach((s) => { $(s).innerHTML = '<tr><td colspan="4" class="table-msg">Dados indisponíveis no momento.</td></tr>'; });
+  });
+
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => data && cards.forEach((c) => c.draw()), 150); });
+  $('#year').textContent = new Date().getFullYear();
+})();
+</script>
+</body></html>
